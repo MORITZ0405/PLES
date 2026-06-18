@@ -1,0 +1,27 @@
+{
+  "name": "@lest/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^10.0.2",
+    "@lest/config": "*",
+    "@lest/contracts": "*",
+    "@lest/core": "*",
+    "@lest/db": "*",
+    "@lest/providers-mock": "*",
+    "@node-rs/argon2": "^2.0.2",
+    "drizzle-orm": "^0.38.3",
+    "fastify": "^5.2.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@lest/providers-mock",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lest/config": "*",
+    "@lest/contracts": "*",
+    "@lest/core": "*",
+    "@lest/rendering": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}
