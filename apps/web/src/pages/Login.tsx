@@ -18,21 +18,26 @@ export default function Login() {
     mutation.mutate();
   };
 
-  const error =
-    mutation.error instanceof ApiClientError
-      ? mutation.error.status === 401
-        ? 'Invalid email or password.'
-        : mutation.error.message
-      : null;
+  let error: string | null = null;
+  if (mutation.isError) {
+    const err = mutation.error;
+    if (err instanceof ApiClientError) {
+      error = err.status === 401 ? 'E-Mail oder Passwort ist falsch.' : `Fehler ${err.status}: ${err.message}`;
+    } else {
+      error = `Login fehlgeschlagen — Server nicht erreichbar? (${
+        err instanceof Error ? err.message : 'unbekannter Fehler'
+      })`;
+    }
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-ink-100 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-2xl font-bold text-white">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500 text-2xl font-bold text-white">
             L
           </div>
-          <h1 className="text-lg font-semibold text-ink-800">Log in to LEST</h1>
+          <h1 className="text-lg font-semibold text-ink-800">Bei LEST anmelden</h1>
           <p className="text-sm text-ink-500">Server Control Panel</p>
         </div>
 
@@ -40,7 +45,7 @@ export default function Login() {
           onSubmit={onSubmit}
           className="space-y-4 rounded-xl border border-ink-200 bg-white p-6 shadow-sm"
         >
-          <Field label="Email">
+          <Field label="E-Mail">
             <Input
               type="email"
               value={email}
@@ -49,7 +54,7 @@ export default function Login() {
               required
             />
           </Field>
-          <Field label="Password">
+          <Field label="Passwort">
             <Input
               type="password"
               value={password}
@@ -58,11 +63,9 @@ export default function Login() {
               required
             />
           </Field>
-          {error && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-          )}
+          {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
           <Button type="submit" disabled={mutation.isPending} className="w-full">
-            {mutation.isPending ? 'Signing in…' : 'Log in'}
+            {mutation.isPending ? 'Anmelden…' : 'Anmelden'}
           </Button>
         </form>
 
