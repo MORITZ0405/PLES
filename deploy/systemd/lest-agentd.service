@@ -1,0 +1,29 @@
+[Unit]
+Description=LEST privileged node agent (lest-agentd)
+After=network.target
+Requires=lest-agentd.socket
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/lest
+EnvironmentFile=/etc/lest/lest.env
+ExecStart=/opt/lest/node_modules/.bin/tsx apps/agent/src/server.ts
+Restart=on-failure
+RestartSec=3
+
+# Runs as root but dropped to a minimal ambient capability set — NOT full root.
+AmbientCapabilities=CAP_SETUID CAP_SETGID CAP_CHOWN CAP_DAC_OVERRIDE
+CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_CHOWN CAP_DAC_OVERRIDE
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectControlGroups=true
+# Local Unix socket only; no network reachable.
+RestrictAddressFamilies=AF_UNIX
+IPAddressDeny=any
+SystemCallFilter=@system-service
+ReadWritePaths=/etc/nginx /etc/letsencrypt /etc/php /var/www /var/lib/lest /run/lest
+
+[Install]
+WantedBy=multi-user.target

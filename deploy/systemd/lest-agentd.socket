@@ -1,0 +1,13 @@
+[Unit]
+Description=LEST privileged agent socket
+
+[Socket]
+# Only root creates it; only the 'lest' group may connect (0660 root:lest).
+ListenStream=/run/lest/agentd.sock
+SocketUser=root
+SocketGroup=lest
+SocketMode=0660
+DirectoryMode=0750
+
+[Install]
+WantedBy=sockets.target

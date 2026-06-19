@@ -1,0 +1,31 @@
+[Unit]
+Description=LEST control plane API (unprivileged)
+Documentation=https://github.com/your-org/lest
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=lest
+Group=lest
+WorkingDirectory=/opt/lest
+EnvironmentFile=/etc/lest/lest.env
+ExecStart=/opt/lest/node_modules/.bin/tsx apps/api/src/server.ts
+Restart=on-failure
+RestartSec=3
+
+# Hardening — the web tier holds no privileges and is treated as compromised.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+ReadWritePaths=/var/lib/lest
+
+[Install]
+WantedBy=multi-user.target

@@ -12,11 +12,14 @@
     "node": ">=20"
   },
   "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "dev:api": "npm -w @lest/api run dev",
     "dev:web": "npm -w @lest/web run dev",
     "db:push": "npm -w @lest/db run push",
+    "db:migrate": "npm -w @lest/db run migrate",
     "db:seed": "npm -w @lest/db run seed"
   },
   "devDependencies": {

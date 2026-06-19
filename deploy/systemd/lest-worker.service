@@ -1,0 +1,30 @@
+[Unit]
+Description=LEST background worker (unprivileged)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=lest
+Group=lest
+WorkingDirectory=/opt/lest
+EnvironmentFile=/etc/lest/lest.env
+ExecStart=/opt/lest/node_modules/.bin/tsx apps/worker/src/server.ts
+Restart=on-failure
+RestartSec=5
+
+# Same hardening as the API tier.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+ReadWritePaths=/var/lib/lest
+
+[Install]
+WantedBy=multi-user.target
