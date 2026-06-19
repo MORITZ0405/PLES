@@ -3,16 +3,22 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAt
 export function Button({
   children,
   variant = 'primary',
+  size = 'md',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md';
+}) {
   const base =
-    'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed';
-  const styles =
-    variant === 'primary'
-      ? 'bg-brand-500 text-slate-950 hover:bg-brand-400'
-      : 'bg-slate-800 text-slate-200 hover:bg-slate-700';
+    'inline-flex items-center justify-center gap-2 rounded-md font-medium transition disabled:opacity-50 disabled:cursor-not-allowed';
+  const sizes = size === 'sm' ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-sm';
+  const variants = {
+    primary: 'bg-brand-600 text-white hover:bg-brand-700',
+    secondary: 'border border-ink-300 bg-white text-ink-700 hover:bg-ink-50',
+    ghost: 'text-ink-600 hover:bg-ink-100',
+  };
   return (
-    <button className={`${base} ${styles}`} {...props}>
+    <button className={`${base} ${sizes} ${variants[variant]}`} {...props}>
       {children}
     </button>
   );
@@ -20,21 +26,27 @@ export function Button({
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl border border-slate-800 bg-slate-900/60 p-5 ${className}`}>
-      {children}
-    </div>
+    <div className={`rounded-lg border border-ink-200 bg-white ${className}`}>{children}</div>
   );
 }
 
-export function Badge({ children, tone = 'slate' }: { children: ReactNode; tone?: 'slate' | 'green' | 'amber' | 'cyan' }) {
+export function Badge({
+  children,
+  tone = 'ink',
+}: {
+  children: ReactNode;
+  tone?: 'ink' | 'green' | 'amber' | 'red';
+}) {
   const tones: Record<string, string> = {
-    slate: 'bg-slate-700 text-slate-200',
-    green: 'bg-emerald-500/20 text-emerald-300',
-    amber: 'bg-amber-500/20 text-amber-300',
-    cyan: 'bg-brand-500/20 text-brand-300',
+    ink: 'bg-ink-100 text-ink-600',
+    green: 'bg-brand-50 text-brand-700',
+    amber: 'bg-amber-50 text-amber-700',
+    red: 'bg-red-50 text-red-700',
   };
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}
+    >
       {children}
     </span>
   );
@@ -43,7 +55,7 @@ export function Badge({ children, tone = 'slate' }: { children: ReactNode; tone?
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-brand-500"
+      className="w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-sm text-ink-800 outline-none placeholder:text-ink-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
       {...props}
     />
   );
@@ -52,7 +64,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-brand-500"
+      className="w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-sm text-ink-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
       {...props}
     />
   );
@@ -61,7 +73,7 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</span>
+      <span className="text-xs font-medium text-ink-600">{label}</span>
       {children}
     </label>
   );

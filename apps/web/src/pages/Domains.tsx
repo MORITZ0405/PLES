@@ -2,11 +2,22 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Api, ApiClientError } from '../api';
 import { Badge, Button, Card, Field, Input, Select } from '../ui';
+import { Icon } from '../icons';
+
+const TOOLS: { icon: string; label: string }[] = [
+  { icon: 'settings', label: 'Hosting Settings' },
+  { icon: 'folder', label: 'File Manager' },
+  { icon: 'database', label: 'Databases' },
+  { icon: 'lock', label: 'SSL/TLS' },
+  { icon: 'code', label: 'PHP' },
+  { icon: 'chart', label: 'Logs' },
+];
 
 export default function Domains() {
   const qc = useQueryClient();
   const subs = useQuery({ queryKey: ['subscriptions'], queryFn: Api.subscriptions });
-  const [subId, setSubId] = useState<string>('');
+  const [subId, setSubId] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     if (!subId && subs.data && subs.data.length > 0) setSubId(subs.data[0]!.id);
@@ -23,14 +34,10 @@ export default function Domains() {
   const [httpsMode, setHttpsMode] = useState<'off' | 'redirect' | 'only'>('off');
 
   const create = useMutation({
-    mutationFn: () =>
-      Api.createDomain(subId, {
-        fqdn,
-        phpVersion: phpVersion || null,
-        httpsMode,
-      }),
+    mutationFn: () => Api.createDomain(subId, { fqdn, phpVersion: phpVersion || null, httpsMode }),
     onSuccess: () => {
       setFqdn('');
+      setShowAdd(false);
       qc.invalidateQueries({ queryKey: ['domains', subId] });
       qc.invalidateQueries({ queryKey: ['subscriptions'] });
     },
@@ -44,95 +51,118 @@ export default function Domains() {
   const createError = create.error instanceof ApiClientError ? create.error.message : null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-100">Domains &amp; Websites</h2>
-          <p className="text-sm text-slate-400">
-            Create domains; LEST generates the nginx vhost and php-fpm pool.
-          </p>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm text-ink-500">
+          <span>Subscription</span>
+          <Select value={subId} onChange={(e) => setSubId(e.target.value)} style={{ width: 'auto' }}>
+            {subs.data?.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.id.slice(0, 8)}…
+              </option>
+            ))}
+          </Select>
         </div>
-        <div className="w-72">
-          <Field label="Subscription">
-            <Select value={subId} onChange={(e) => setSubId(e.target.value)}>
-              {subs.data?.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.id}
-                </option>
-              ))}
-            </Select>
-          </Field>
-        </div>
+        <Button onClick={() => setShowAdd((v) => !v)}>
+          <Icon name="plus" size={16} /> Add Domain
+        </Button>
       </div>
 
-      <Card>
-        <form onSubmit={onSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr_1fr_auto] md:items-end">
-          <Field label="Domain (FQDN)">
-            <Input
-              placeholder="example.com"
-              value={fqdn}
-              onChange={(e) => setFqdn(e.target.value)}
-              required
-            />
-          </Field>
-          <Field label="PHP version">
-            <Select value={phpVersion} onChange={(e) => setPhpVersion(e.target.value)}>
-              <option value="">None</option>
-              <option value="8.3">8.3</option>
-              <option value="8.2">8.2</option>
-              <option value="8.1">8.1</option>
-              <option value="7.4">7.4</option>
-            </Select>
-          </Field>
-          <Field label="HTTPS">
-            <Select value={httpsMode} onChange={(e) => setHttpsMode(e.target.value as typeof httpsMode)}>
-              <option value="off">Off</option>
-              <option value="redirect">Redirect</option>
-              <option value="only">Only</option>
-            </Select>
-          </Field>
-          <Button type="submit" disabled={create.isPending || !subId}>
-            {create.isPending ? 'Creating…' : 'Add domain'}
-          </Button>
-        </form>
-        {createError && <p className="mt-3 text-sm text-red-400">{createError}</p>}
-      </Card>
+      {showAdd && (
+        <Card className="p-5">
+          <form
+            onSubmit={onSubmit}
+            className="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr_1fr_auto] md:items-end"
+          >
+            <Field label="Domain name">
+              <Input placeholder="example.com" value={fqdn} onChange={(e) => setFqdn(e.target.value)} required />
+            </Field>
+            <Field label="PHP version">
+              <Select value={phpVersion} onChange={(e) => setPhpVersion(e.target.value)}>
+                <option value="">None</option>
+                <option value="8.3">8.3</option>
+                <option value="8.2">8.2</option>
+                <option value="8.1">8.1</option>
+                <option value="7.4">7.4</option>
+              </Select>
+            </Field>
+            <Field label="HTTPS">
+              <Select value={httpsMode} onChange={(e) => setHttpsMode(e.target.value as typeof httpsMode)}>
+                <option value="off">Off</option>
+                <option value="redirect">Redirect</option>
+                <option value="only">Only</option>
+              </Select>
+            </Field>
+            <Button type="submit" disabled={create.isPending || !subId}>
+              {create.isPending ? 'Creating…' : 'Create'}
+            </Button>
+          </form>
+          {createError && <p className="mt-3 text-sm text-red-600">{createError}</p>}
+        </Card>
+      )}
 
-      <Card className="p-0">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-slate-800 text-left text-slate-400">
-              <th className="px-5 py-3 font-medium">Domain</th>
-              <th className="px-5 py-3 font-medium">PHP</th>
-              <th className="px-5 py-3 font-medium">HTTPS</th>
-              <th className="px-5 py-3 font-medium">vhost</th>
-              <th className="px-5 py-3 font-medium">Document root</th>
-            </tr>
-          </thead>
-          <tbody>
-            {domains.data?.map((d) => (
-              <tr key={d.id} className="border-b border-slate-800/60 last:border-0">
-                <td className="px-5 py-3 font-medium text-slate-100">{d.fqdn}</td>
-                <td className="px-5 py-3 text-slate-300">{d.phpVersion ?? '—'}</td>
-                <td className="px-5 py-3 text-slate-300">{d.httpsMode}</td>
-                <td className="px-5 py-3">
-                  <Badge tone={d.vhostState === 'live' ? 'green' : d.vhostState === 'pending' ? 'amber' : 'slate'}>
+      {domains.data?.length === 0 && (
+        <Card className="p-10 text-center">
+          <p className="text-ink-500">No websites yet.</p>
+          <p className="mt-1 text-sm text-ink-400">Click “Add Domain” to create your first site.</p>
+        </Card>
+      )}
+
+      {domains.data?.map((d) => (
+        <Card key={d.id} className="overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink-100 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+                <Icon name="globe" size={20} />
+              </div>
+              <div>
+                <a
+                  href={`http://${d.fqdn}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-brand-700 hover:underline"
+                >
+                  {d.fqdn}
+                </a>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <Badge tone={d.vhostState === 'live' ? 'green' : d.vhostState === 'pending' ? 'amber' : 'ink'}>
                     {d.vhostState}
                   </Badge>
-                </td>
-                <td className="px-5 py-3 font-mono text-xs text-slate-500">{d.docRoot}</td>
-              </tr>
+                  {d.phpVersion && <Badge tone="ink">PHP {d.phpVersion}</Badge>}
+                  <Badge tone={d.httpsMode === 'off' ? 'ink' : 'green'}>
+                    HTTPS {d.httpsMode}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <a
+              href={`http://${d.fqdn}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-800"
+            >
+              <Icon name="external" size={16} /> Open
+            </a>
+          </div>
+
+          <div className="flex flex-wrap gap-2 p-4">
+            {TOOLS.map((t) => (
+              <span
+                key={t.label}
+                title="Coming soon"
+                className="inline-flex cursor-default items-center gap-2 rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-600"
+              >
+                <Icon name={t.icon} size={16} />
+                {t.label}
+              </span>
             ))}
-            {domains.data && domains.data.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-slate-500">
-                  No domains yet. Add your first one above.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </Card>
+          </div>
+
+          <div className="border-t border-ink-100 bg-ink-50 px-4 py-2 font-mono text-xs text-ink-400">
+            {d.docRoot}
+          </div>
+        </Card>
+      ))}
     </div>
   );
 }
