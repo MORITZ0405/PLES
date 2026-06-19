@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  background: #0b1220;
-  color: #e2e8f0;
-  font-family: Inter, system-ui, sans-serif;
+  background: #f3f4f6;
+  color: #1e293b;
+  font-family: Inter, 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

@@ -26,17 +26,20 @@ export default function Login() {
       : null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-5">
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500 text-2xl font-black text-slate-950">
+    <div className="flex min-h-screen items-center justify-center bg-ink-100 px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex flex-col items-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-2xl font-bold text-white">
             L
           </div>
-          <h1 className="text-xl font-semibold text-slate-100">LEST</h1>
-          <p className="text-sm text-slate-400">Lightweight Easy Server Toolkit</p>
+          <h1 className="text-lg font-semibold text-ink-800">Log in to LEST</h1>
+          <p className="text-sm text-ink-500">Server Control Panel</p>
         </div>
 
-        <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <form
+          onSubmit={onSubmit}
+          className="space-y-4 rounded-xl border border-ink-200 bg-white p-6 shadow-sm"
+        >
           <Field label="Email">
             <Input
               type="email"
@@ -55,12 +58,18 @@ export default function Login() {
               required
             />
           </Field>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && (
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          )}
           <Button type="submit" disabled={mutation.isPending} className="w-full">
-            {mutation.isPending ? 'Signing in…' : 'Sign in'}
+            {mutation.isPending ? 'Signing in…' : 'Log in'}
           </Button>
-        </div>
-      </form>
+        </form>
+
+        <p className="mt-4 text-center text-xs text-ink-400">
+          LEST — Lightweight Easy Server Toolkit
+        </p>
+      </div>
     </div>
   );
 }
